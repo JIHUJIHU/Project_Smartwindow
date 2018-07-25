@@ -1,0 +1,342 @@
+###############################################################################
+#                                                                             #
+# IAR ANSI C/C++ Compiler V6.40.4.54170/W32 for ARM     21/Jan/2015  23:02:55 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\I2C_HAL.c                                   #
+#    Command line =  "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\I2C_HAL.c" -D VECT_TAB_FLASH -lcN           #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\List\" -o             #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\Obj\" --debug         #
+#                    --endian=little --cpu=Cortex-M3 -e --fpu=None            #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.4\arm\INC\c\DLib_Config_Full.h" -I           #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\" -I "D:\2014년도                #
+#                    프로젝트\간단한 개발\voc_김한수박사\Firmware\TVOC_LCD_TG #
+#                    S_GPS_CDMA_SD_RTC_Sen_141215\EWARMv5\..\..\" -I          #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\..\FWLib\library\inc\" -I        #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\..\01_drv\" -Ohz                 #
+#                    --use_c++_inline --require_prototypes                    #
+#    List file    =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\List\I2C_HAL.lst      #
+#    Object file  =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\Obj\I2C_HAL.o         #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+D:\2014년도 프로젝트\간단한 개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RTC_Sen_141215\I2C_HAL.c
+      1          #include "stm32f10x_lib.h"
+      2          #include "stm32f10x_adc.h"
+      3          #include "stm32f10x_dma.h"
+      4          #include "platform_config.h"
+      5          #include "stm32f10x_usart.h"
+      6          #include "stm32f10x_map.h"
+      7          #include "I2C_HAL.h"
+      8          #include "SHT2x.h"
+      9          #include "typedefs.h"
+     10          
+     11          //#define DLY_10US       56
+     12          
+     13          #define DLY_10US       730
+     14          
+     15          void I2c_Init(void);
+     16          void I2c_StartCondition (void);
+     17          void I2c_StopCondition (void);
+     18          void Delay_10us(uc32 Dly);
+     19          u8t I2c_WriteByte (u8t txByte);
+     20          u8t I2c_ReadByte (etI2cAck ack);
+     21          unsigned char SDA_read(void);
+     22          void SDA_out_mode(void);
+     23          void SCL_in_mode(void);
+     24          void SCL_out_mode(void);
+     25          unsigned char SCL_read(void);
+     26          void SDA_in_mode(void);
+     27          
+     28          void I2c_Init(void)
+     29          {
+     30              SHT21->BSRR=SDA1;     
+     31              Delay(10);    
+     32              SHT21->BSRR=SCL1;               
+     33          }
+     34          
+     35          void I2c_StartCondition (void)
+     36          {
+     37          	SHT21->BSRR=SDA1; 
+     38          	SHT21->BSRR=SCL1; 
+     39               Delay(10);
+     40          	SHT21->BRR=SDA1; 
+     41          	Delay_10us(10);  // hold time start condition (t_HD;STA)
+     42          	SHT21->BRR=SCL1; 
+     43          	Delay_10us(10);
+     44          }
+     45          
+     46          void I2c_StopCondition ()
+     47          {
+     48          	SHT21->BRR=SDA1; 
+     49               Delay(10);     
+     50          	SHT21->BRR=SCL1; 
+     51               Delay(10);     
+     52          	SHT21->BSRR=SCL1; 
+     53          	Delay_10us(10);  // set-up time stop condition (t_SU;STO)
+     54          	SHT21->BSRR=SDA1; 
+     55          	Delay_10us(10);
+     56          }
+     57          
+     58          //==============================================================================
+     59          u8t I2c_WriteByte (u8t txByte)
+     60          {
+     61               u8t mask,error=0, ddata;
+     62          
+     63               for (mask=0x80; mask>0; mask>>=1){
+     64                  if((mask & txByte) == 0) SHT21->BRR=SDA1; 
+     65                  else SHT21->BSRR=SDA1; 
+     66                  
+     67                  Delay_10us(1);             //data set-up time (t_SU;DAT)
+     68                  SHT21->BSRR=SCL1;                  //generate clock pulse on SCL
+     69                  Delay_10us(5);             //SCL high time (t_HIGH)
+     70                  SHT21->BRR=SCL1; 
+     71                  Delay_10us(1);             //data hold time(t_HD;DAT)
+     72               }
+     73          
+     74          	SDA_in_mode();               // SDA is Input
+     75          
+     76               SHT21->BSRR=SCL1;            //clk #9 for ack
+     77               Delay_10us(1);               //data set-up time (t_SU;DAT)
+     78          
+     79            	// ddata = SDA1;        // SDA1의 데이터를 읽어야 함. 
+     80                  
+     81               ddata = SDA_read();   
+     82                  
+     83               if(ddata==1)error=ACK_ERROR; //check ack from i2c slave
+     84               
+     85               SDA_out_mode();   //SDA Output
+     86          
+     87               SHT21->BRR=SCL1; 
+     88          
+     89               Delay_10us(20);              //wait time to see byte package on scope
+     90               return error;                       //return error code
+     91          }
+     92          
+     93          //==============================================================================
+     94          u8t I2c_ReadByte (etI2cAck ack)
+     95          {
+     96               u8t mask, rxByte=0, p0data;
+     97          
+     98               SDA_in_mode();
+     99               
+    100               for (mask=0x80; mask>0; mask>>=1){   //shift bit for masking (8 times)
+    101                  SHT21->BSRR=SCL1;                          //start clock on SCL-line
+    102                  Delay_10us(1);             //data set-up time (t_SU;DAT)
+    103                  Delay_10us(3); 
+    104                  p0data = SDA_read();   
+    105              
+    106                  if (p0data==1) rxByte=(rxByte | mask); //read bit
+    107                  SHT21->BRR=SCL1; 
+    108                  Delay_10us(1);             //data hold time(t_HD;DAT)
+    109               }
+    110            		
+    111          
+    112               SDA_out_mode();   //SDA Output
+    113          
+    114               // SDA1=ack;                            //send acknowledge if necessary
+    115               if(ack)SHT21->BSRR=SDA1;
+    116               else SHT21->BRR=SDA1;
+    117               
+    118               Delay_10us(1);               //data set-up time (t_SU;DAT)
+    119               SHT21->BSRR=SCL1;                          //clk #9 for ack
+    120               Delay_10us(5);               //SCL high time (t_HIGH)
+    121               SHT21->BRR=SCL1; 
+    122               Delay(10);
+    123               SHT21->BSRR=SDA1;                        //release SDA-line
+    124               Delay_10us(20);              //wait time to see byte package on scope
+    125               
+    126               return rxByte;                      //return error code
+    127          }
+    128          
+    129          unsigned char SDA_read(void)
+    130          {
+    131             unsigned char j;
+    132             GPIO_InitTypeDef GPIO_InitStructure_I;
+    133          
+    134             GPIO_InitStructure_I.GPIO_Pin = SDA1;
+    135             GPIO_InitStructure_I.GPIO_Speed = GPIO_Speed_50MHz;
+    136             GPIO_InitStructure_I.GPIO_Mode = GPIO_Mode_IPD; 
+    137             GPIO_Init(GPIOB, &GPIO_InitStructure_I);
+    138             
+    139             Delay(1000);
+    140             
+    141             j = GPIO_ReadInputDataBit(GPIOB , SDA1);
+    142          
+    143             return j;
+    144          }
+    145          
+    146          void SDA_in_mode(void)
+    147          {
+    148             GPIO_InitTypeDef GPIO_InitStructure_I;
+    149             
+    150             GPIO_InitStructure_I.GPIO_Pin = SDA1;
+    151             GPIO_InitStructure_I.GPIO_Speed = GPIO_Speed_50MHz;
+    152             GPIO_InitStructure_I.GPIO_Mode = GPIO_Mode_IPD; 
+    153             GPIO_Init(GPIOB, &GPIO_InitStructure_I);
+    154          
+    155          }
+    156          
+    157          
+    158          void SDA_out_mode(void)
+    159          {
+    160             GPIO_InitTypeDef GPIO_InitStructure_I;
+    161          
+    162             GPIO_InitStructure_I.GPIO_Pin = SDA1;
+    163             GPIO_InitStructure_I.GPIO_Speed = GPIO_Speed_50MHz;
+    164             GPIO_InitStructure_I.GPIO_Mode = GPIO_Mode_Out_PP; 
+    165             GPIO_Init(GPIOB, &GPIO_InitStructure_I);
+    166          }
+    167          
+    168          unsigned char SCL_read(void)
+    169          {
+    170             unsigned char j;
+    171             GPIO_InitTypeDef GPIO_InitStructure_I;
+    172          
+    173             GPIO_InitStructure_I.GPIO_Pin = SCL1;
+    174             GPIO_InitStructure_I.GPIO_Speed = GPIO_Speed_50MHz;
+    175             GPIO_InitStructure_I.GPIO_Mode = GPIO_Mode_IPD; 
+    176             GPIO_Init(GPIOB, &GPIO_InitStructure_I);
+    177             
+    178             Delay(1000);
+    179             
+    180             j = GPIO_ReadInputDataBit(GPIOB , SCL1);
+    181          
+    182             return j;
+    183          }
+    184          
+    185          void SCL_out_mode(void)
+    186          {
+    187             GPIO_InitTypeDef GPIO_InitStructure_I;
+    188          
+    189             GPIO_InitStructure_I.GPIO_Pin = SCL1;
+    190             GPIO_InitStructure_I.GPIO_Speed = GPIO_Speed_50MHz;
+    191             GPIO_InitStructure_I.GPIO_Mode = GPIO_Mode_Out_PP; 
+    192             GPIO_Init(GPIOB, &GPIO_InitStructure_I);
+    193          }
+    194          
+    195          void SCL_in_mode(void)
+    196          {
+    197             GPIO_InitTypeDef GPIO_InitStructure_I;
+    198          
+    199             GPIO_InitStructure_I.GPIO_Pin = SCL1;
+    200             GPIO_InitStructure_I.GPIO_Speed = GPIO_Speed_50MHz;
+    201             GPIO_InitStructure_I.GPIO_Mode = GPIO_Mode_IPD; 
+    202             GPIO_Init(GPIOB, &GPIO_InitStructure_I);
+    203          }
+    204          
+    205          
+    206          void Delay_10us(u32 Dly)
+    207          {
+    208            for(; Dly; Dly--)
+    209            {
+    210              for(volatile u32 j = DLY_10US; j; j--)
+    211              {
+    212              }
+    213            }
+    214          }
+    215          
+    216          
+    217          
+    218          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+        4  Delay_10us
+        8  I2c_Init
+              8 -> Delay
+       24  I2c_ReadByte
+             24 -> Delay
+             24 -> Delay_10us
+             24 -> SDA_in_mode
+             24 -> SDA_out_mode
+             24 -> SDA_read
+        8  I2c_StartCondition
+              8 -> Delay
+              0 -> Delay_10us
+              8 -> Delay_10us
+        8  I2c_StopCondition
+              8 -> Delay
+              0 -> Delay_10us
+              8 -> Delay_10us
+       24  I2c_WriteByte
+             24 -> Delay_10us
+             24 -> SDA_in_mode
+             24 -> SDA_out_mode
+             24 -> SDA_read
+        8  SCL_in_mode
+              8 -> GPIO_Init
+        8  SCL_out_mode
+              8 -> GPIO_Init
+       16  SCL_read
+             16 -> Delay
+             16 -> GPIO_Init
+             16 -> GPIO_ReadInputDataBit
+        8  SDA_in_mode
+              8 -> GPIO_Init
+        8  SDA_out_mode
+              8 -> GPIO_Init
+       16  SDA_read
+             16 -> Delay
+             16 -> GPIO_Init
+             16 -> GPIO_ReadInputDataBit
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable5
+       4  ??DataTable5_1
+      14  ??Subroutine7_0
+       8  ?Subroutine0
+       8  ?Subroutine1
+      12  ?Subroutine2
+      26  ?Subroutine3
+      10  ?Subroutine4
+       4  ?Subroutine5
+      14  ?Subroutine6
+      32  Delay_10us
+      18  I2c_Init
+      98  I2c_ReadByte
+      32  I2c_StartCondition
+      28  I2c_StopCondition
+      88  I2c_WriteByte
+       4  SCL_in_mode
+      10  SCL_out_mode
+      20  SCL_read
+       6  SDA_in_mode
+      10  SDA_out_mode
+      22  SDA_read
+
+ 
+ 472 bytes in section .text
+ 
+ 472 bytes of CODE memory
+
+Errors: none
+Warnings: none

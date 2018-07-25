@@ -1,0 +1,19 @@
+"--endian=little" 
+
+"--cpu=Cortex-M3" 
+
+"--fpu=None" 
+
+"-p" 
+
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\arm\CONFIG\debugger\ST\STM32F103R6.ddf" 
+
+"--semihosting" 
+
+"--device=STM32F103R6" 
+
+"--multicore_nr_of_cores=1" 
+
+
+
+

@@ -1,0 +1,342 @@
+###############################################################################
+#                                                                             #
+# IAR ANSI C/C++ Compiler V6.40.4.54170/W32 for ARM     21/Jan/2015  23:02:55 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\AD5258.c                                    #
+#    Command line =  "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\AD5258.c" -D VECT_TAB_FLASH -lcN            #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\List\" -o             #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\Obj\" --debug         #
+#                    --endian=little --cpu=Cortex-M3 -e --fpu=None            #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.4\arm\INC\c\DLib_Config_Full.h" -I           #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\" -I "D:\2014년도                #
+#                    프로젝트\간단한 개발\voc_김한수박사\Firmware\TVOC_LCD_TG #
+#                    S_GPS_CDMA_SD_RTC_Sen_141215\EWARMv5\..\..\" -I          #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\..\FWLib\library\inc\" -I        #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\..\01_drv\" -Ohz                 #
+#                    --use_c++_inline --require_prototypes                    #
+#    List file    =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\List\AD5258.lst       #
+#    Object file  =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\Obj\AD5258.o          #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+D:\2014년도 프로젝트\간단한 개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RTC_Sen_141215\AD5258.c
+      1          #include "stm32f10x_it.h"
+      2          #include "stm32f10x_rcc.h"
+      3          #include "Ad5258.h"
+      4          
+      5          
+      6          
+      7          //I2Caddress IC4, IC5, IC7, IC9	  
+      8          const  u8 I2C_addr_wr[ADDR_NUM] = {0x30, 0x98, 0x34, 0x9c};	//AD5258, 00, 01, 10, 11
+      9          const  u8 I2C_addr_rd[ADDR_NUM] = {0x31, 0x99, 0x35, 0x9d};	//AD5258
+     10          const  u8 BIT_TEST[8]={0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};	
+     11          
+     12          //I2C 
+     13          
+     14          u8	  I2C_ack;
+     15          
+     16          void  I2CStart(void);				//I2C start
+     17          void  I2CStop(void);				//I2C stop
+     18          void  I2CSendByte(u8 str); 	     //I2C send a byte to slave	
+     19          u8 I2CRcvByte(void); 	 		     //I2C recieve a byte from slave
+     20          void Delay(vu32 nCount);
+     21          void TGS_SDA_Input(void);
+     22          void TGS_SDA_Output(void);
+     23          
+     24          
+     25          void  ConfigAd5258(u8 uIndex, u8 uVal)
+     26          {
+     27               I2CStart();  							//start
+     28               I2CSendByte(I2C_addr_wr[uIndex]); 			//address
+     29          	I2CSendByte(0x00); 		
+     30               I2CSendByte(uVal); 		
+     31          	I2CStop();	  		
+     32          }
+     33          
+     34          //Ad5258 active or deactive write protect
+     35          void  ActiveAd5258(u8 uIndex, u8 bActive)
+     36          {
+     37             if(bActive == 1)
+     38             {
+     39          		I2CStart();  						//start
+     40          		I2CSendByte(I2C_addr_wr[uIndex]); 		//address
+     41          		I2CSendByte(0x40); 					//instruction
+     42          		I2CSendByte(0x00); 	               	//data
+     43          		I2CStop();	
+     44             }
+     45             else
+     46             {
+     47             	   	I2CStart();  						//start
+     48          		I2CSendByte(I2C_addr_wr[uIndex]); 		//address
+     49          		I2CSendByte(0x40); 					//instruction
+     50          		I2CSendByte(0x01); 		               //data
+     51          		I2CStop();
+     52             }
+     53          }
+     54          
+     55          //write data from ram to eeprom
+     56          void  WrData2EEprom(u8 uIndex)
+     57          {
+     58          	I2CStart();  						//start
+     59          	I2CSendByte(I2C_addr_wr[uIndex]); 		//address
+     60          	I2CSendByte(0xC0); 					//instruction
+     61          	I2CStop();	
+     62          }
+     63          
+     64          //read data from eeprom to ram
+     65          void RdDataFromEEprom(u8 uIndex)
+     66          {
+     67          	I2CStart();  						//start
+     68          	I2CSendByte(I2C_addr_wr[uIndex]); 		//address
+     69          	I2CSendByte(0xA0); 					//instruction
+     70          	I2CStop();
+     71          }
+     72          
+     73          //read data from ram
+     74          u8 RdDataFromRam(u8 uIndex)
+     75          {
+     76          	u8 val;
+     77          	I2CStart();  						//start
+     78          	I2CSendByte(I2C_addr_wr[uIndex]); 		//address
+     79          	I2CSendByte(0x00); 					//instruction
+     80          	
+     81          	I2CStart();  						//start
+     82          	I2CSendByte(I2C_addr_rd[uIndex]); 		//address
+     83          	
+     84          	val = I2CRcvByte();
+     85          	
+     86          	I2CStop();
+     87          	return val;
+     88          }
+     89          
+     90          //I2C start
+     91          void  I2CStart(void)
+     92          {
+     93               GPIO_SetBits(GPIOE , TGS_SDA);	 //I2C_SDA = 1; 
+     94          	Delay(10);
+     95          	GPIO_SetBits(GPIOE , TGS_SCL);      //I2C_SCL = 1;
+     96          	Delay(10);
+     97          	GPIO_ResetBits(GPIOE , TGS_SDA);     //I2C_SDA = 0;   	//high to low
+     98          	Delay(10);			                      //interval time > 0.6us
+     99          	GPIO_ResetBits(GPIOE , TGS_SCL);     //I2C_SCL = 0;   	//make scl low to prepare to transfer data
+    100          }
+    101          
+    102          //I2C stop	
+    103          void  I2CStop(void)
+    104          {
+    105          	GPIO_ResetBits(GPIOE , TGS_SDA);      //I2C_SDA = 0;  	//prepare
+    106          	Delay(10);   													
+    107          	GPIO_SetBits(GPIOE , TGS_SCL);        //I2C_SCL = 1;  	//make scl high
+    108          	Delay(10);			//wait
+    109          	GPIO_SetBits(GPIOE , TGS_SDA);        //I2C_SDA = 1;  	//make SDA low to high
+    110          	Delay(10);			//wait
+    111          	GPIO_ResetBits(GPIOE , TGS_SCL);      //I2C_SCL = 0;  	//make scl high
+    112          }
+    113          
+    114          //I2C send a byte to slave	
+    115          void  I2CSendByte(u8 sch)
+    116          {
+    117          	u8 BitCnt; 
+    118          	u8 data_in;
+    119          	
+    120          	for(BitCnt = 0; BitCnt < 8; BitCnt ++)  	       //8bit to transfer
+    121              {
+    122          		if(sch&BIT_TEST[BitCnt]) 
+    123          			GPIO_SetBits(GPIOE , TGS_SDA);            //I2C_SDA = 1;
+    124                    else  
+    125          			GPIO_ResetBits(GPIOE , TGS_SDA);          //I2C_SDA = 0;   
+    126          		Delay(10);             
+    127               	GPIO_SetBits(GPIOE , TGS_SCL);                 //I2C_SCL = 1;               						
+    128                	Delay(10);											//
+    129                    GPIO_ResetBits(GPIOE , TGS_SCL);               //I2C_SCL = 0; 
+    130              }
+    131              Delay(10);
+    132              GPIO_SetBits(GPIOE , TGS_SDA);               //I2C_SDA = 1;  
+    133              Delay(10);   
+    134              GPIO_SetBits(GPIOE , TGS_SCL);               //I2C_SCL = 1;
+    135              
+    136              
+    137              TGS_SDA_Input();
+    138              data_in=GPIO_ReadInputDataBit(GPIOE , TGS_SDA); 
+    139              
+    140              if(data_in == 1)	
+    141          		I2C_ack = 0;     
+    142              else	
+    143          		I2C_ack = 1;                //slave acknowledge
+    144              
+    145              TGS_SDA_Output();
+    146              
+    147              GPIO_ResetBits(GPIOE , TGS_SCL);             //I2C_SCL = 0;
+    148          } 	
+    149          
+    150          //I2C recieve a byte from slave	
+    151          u8 I2CRcvByte(void)
+    152          {
+    153          	u8 BitCnt, retc = 0;	
+    154          	u8 data_in;
+    155               
+    156          	// Must Change SDA pin to INPUT
+    157          //	GPIO_SetBits(GPIOE , TGS_SDA);              // I2C_SDA = 1; 
+    158          	
+    159          	TGS_SDA_Input();
+    160          	Delay(10);
+    161          	for(BitCnt = 0; BitCnt < 8; BitCnt ++)
+    162          	{
+    163          		GPIO_SetBits(GPIOE , TGS_SCL);           //I2C_SCL = 1;
+    164          		Delay(10);											//wait
+    165          		GPIO_ResetBits(GPIOE , TGS_SCL);         //I2C_SCL = 0;  	//high to low
+    166          		Delay(10);
+    167          		
+    168          		data_in=GPIO_ReadInputDataBit(GPIOE , TGS_SDA); 
+    169          		
+    170          	
+    171          		if(data_in == 1)	
+    172          			retc = retc + BIT_TEST[BitCnt]; 			//read data
+    173          		
+    174          	}
+    175          	TGS_SDA_Output();
+    176          	Delay(10);
+    177          //	GPIO_SetBits(GPIOE , TGS_SDA);           //I2C_SDA = 1;  
+    178          	Delay(10);  
+    179          	return(retc);
+    180          }
+    181          
+    182          void TGS_SDA_Input(void)
+    183          {
+    184          	 GPIO_InitTypeDef GPIO_InitStructure;
+    185          	   
+    186                GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;   //TGS SDA  
+    187          	 
+    188          	 GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+    189          	      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
+    190             	 GPIO_Init(GPIOE, &GPIO_InitStructure);     
+    191          }
+    192          
+    193          void TGS_SDA_Output(void)
+    194          {
+    195          	 GPIO_InitTypeDef GPIO_InitStructure;
+    196          	   
+    197                GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;   //TGS SDA      
+    198                GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    199                GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    200             	 GPIO_Init(GPIOE, &GPIO_InitStructure);     
+    201          }
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+       16  ActiveAd5258
+             16 -> I2CSendByte
+             16 -> I2CStart
+              0 -> I2CStop
+       16  ConfigAd5258
+             16 -> I2CSendByte
+             16 -> I2CStart
+              0 -> I2CStop
+       24  I2CRcvByte
+             24 -> Delay
+             24 -> GPIO_ReadInputDataBit
+             24 -> GPIO_ResetBits
+             24 -> GPIO_SetBits
+             24 -> TGS_SDA_Input
+             24 -> TGS_SDA_Output
+       24  I2CSendByte
+             24 -> Delay
+             24 -> GPIO_ReadInputDataBit
+              0 -> GPIO_ResetBits
+             24 -> GPIO_ResetBits
+             24 -> GPIO_SetBits
+             24 -> TGS_SDA_Input
+             24 -> TGS_SDA_Output
+        8  I2CStart
+              8 -> Delay
+              0 -> GPIO_ResetBits
+              8 -> GPIO_ResetBits
+              8 -> GPIO_SetBits
+        8  I2CStop
+              8 -> Delay
+              0 -> GPIO_ResetBits
+              8 -> GPIO_ResetBits
+              8 -> GPIO_SetBits
+        8  RdDataFromEEprom
+              8 -> I2CSendByte
+              8 -> I2CStart
+              0 -> I2CStop
+        8  RdDataFromRam
+              8 -> I2CRcvByte
+              8 -> I2CSendByte
+              8 -> I2CStart
+              8 -> I2CStop
+        8  TGS_SDA_Input
+              8 -> GPIO_Init
+        8  TGS_SDA_Output
+              8 -> GPIO_Init
+        8  WrData2EEprom
+              8 -> I2CSendByte
+              8 -> I2CStart
+              0 -> I2CStop
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable6
+       4  ??DataTable6_1
+      10  ?Subroutine0
+      10  ?Subroutine1
+      16  ?Subroutine2
+      20  ?Subroutine3
+       6  ?Subroutine4
+       8  ?Subroutine5
+       8  ?Subroutine6
+       8  ?Subroutine7
+      50  ActiveAd5258
+       8  BIT_TEST
+      24  ConfigAd5258
+      84  I2CRcvByte
+     118  I2CSendByte
+      32  I2CStart
+      30  I2CStop
+       1  I2C_ack
+       4  I2C_addr_rd
+       4  I2C_addr_wr
+      14  RdDataFromEEprom
+      46  RdDataFromRam
+      12  TGS_SDA_Input
+      10  TGS_SDA_Output
+      16  WrData2EEprom
+
+ 
+   1 byte  in section .bss
+ 546 bytes in section .text
+ 
+ 546 bytes of CODE memory
+   1 byte  of DATA memory
+
+Errors: none
+Warnings: none

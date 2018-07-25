@@ -1,0 +1,303 @@
+###############################################################################
+#
+# IAR ELF Linker V8.11.2.13589/W32 for ARM                06/Sep/2017  21:47:37
+# Copyright 2007-2017 IAR Systems AB.
+#
+#    Output file  =  
+#        D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Exe\Project.out
+#    Map file     =  
+#        D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\List\Project.map
+#    Command line =  
+#        -f C:\Users\admin\AppData\Local\Temp\EW40CD.tmp
+#        ("D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\cortexm3_macro.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\main.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_adc.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_dma.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_exti.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_flash.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_gpio.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_i2c.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_it.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_lib.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_nvic.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_pwr.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_rcc.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_rtc.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_sdio.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_spi.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_systick.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_tim.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_usart.o"
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Obj\stm32f10x_vector.o" -o
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\Exe\Project.out" --map
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\Source\LED_Test\EWARMv5\Debug\List\Project.map" --config
+#        "D:\대구소프트웨어고등학교\Cortex
+#        수업\수업자료\LED_Test\EWARMv5\stm32f10x_flash.icf"
+#        --semihosting --entry __iar_program_start --vfe --text_out locale)
+#
+###############################################################################
+
+*******************************************************************************
+*** RUNTIME MODEL ATTRIBUTES
+***
+
+CppFlavor       = *
+__SystemLibrary = DLib
+__dlib_version  = 6
+
+
+*******************************************************************************
+*** HEAP SELECTION
+***
+
+The basic heap was selected because some modules are built with
+size limitations (and not runtime checking), and --advanced_heap
+was not specified.
+
+
+*******************************************************************************
+*** PLACEMENT SUMMARY
+***
+
+"A0":  place at 0x08000000 { ro section .intvec };
+"P1":  place in [from 0x08000000 to 0x0803ffff] { ro };
+define block CSTACK with size = 8K, alignment = 8 { };
+define block HEAP with size = 2K, alignment = 8 { };
+"P2":  place in [from 0x20000000 to 0x2000ffff] {
+          rw, block CSTACK, block HEAP };
+
+  Section   Kind        Address    Size  Object
+  -------   ----        -------    ----  ------
+"A0":                             0x130
+  .intvec   const    0x08000000   0x130  stm32f10x_vector.o [1]
+                   - 0x08000130   0x130
+
+"P1":                             0x15c
+  .text     ro code  0x08000130    0x8a  stm32f10x_it.o [1]
+  .text     ro code  0x080001bc    0x7a  cortexm3_macro.o [1]
+  .text     ro code  0x08000238    0x1a  cmain.o [4]
+  .text     ro code  0x08000252     0x4  low_level_init.o [3]
+  .text     ro code  0x08000256     0x4  main.o [1]
+  .text     ro code  0x0800025a     0x4  exit.o [3]
+  .text     ro code  0x08000260     0xa  cexit.o [4]
+  .text     ro code  0x0800026c    0x14  exit.o [5]
+  .text     ro code  0x08000280     0xc  cstartup_M.o [4]
+                   - 0x0800028c   0x15c
+
+"P2":                            0x2000
+  CSTACK             0x20000000  0x2000  <Block>
+    CSTACK  uninit   0x20000000  0x2000  <Block tail>
+                   - 0x20002000  0x2000
+
+
+
+*******************************************************************************
+*** MODULE SUMMARY
+***
+
+    Module              ro code  ro data  rw data
+    ------              -------  -------  -------
+D:\대구소프트웨어고등학교\Cortex 수업\Source\LED_Test\EWARMv5\Debug\Obj: [1]
+    cortexm3_macro.o        122
+    main.o                    4
+    stm32f10x_it.o          138
+    stm32f10x_vector.o               304
+    ---------------------------------------------
+    Total:                  264      304
+
+command line: [2]
+    ---------------------------------------------
+    Total:
+
+dl7M_tln.a: [3]
+    exit.o                    4
+    low_level_init.o          4
+    ---------------------------------------------
+    Total:                    8
+
+rt7M_tl.a: [4]
+    cexit.o                  10
+    cmain.o                  26
+    cstartup_M.o             12
+    ---------------------------------------------
+    Total:                   48
+
+shb_l.a: [5]
+    exit.o                   20
+    ---------------------------------------------
+    Total:                   20
+
+    Gaps                      8
+    Linker created                          8 192
+-------------------------------------------------
+    Grand Total:            348      304    8 192
+
+
+*******************************************************************************
+*** ENTRY LIST
+***
+
+Entry                      Address   Size  Type      Object
+-----                      -------   ----  ----      ------
+?main                   0x08000239         Code  Gb  cmain.o [4]
+ADC1_2_IRQHandler       0x08000179    0x2  Code  Gb  stm32f10x_it.o [1]
+ADC3_IRQHandler         0x080001a3    0x2  Code  Gb  stm32f10x_it.o [1]
+BusFaultException       0x0800014d    0x2  Code  Gb  stm32f10x_it.o [1]
+CAN_RX1_IRQHandler      0x0800017f    0x2  Code  Gb  stm32f10x_it.o [1]
+CAN_SCE_IRQHandler      0x08000181    0x2  Code  Gb  stm32f10x_it.o [1]
+CSTACK$$Base            0x20000000          --   Gb  - Linker created -
+CSTACK$$Limit           0x20002000          --   Gb  - Linker created -
+DMA1_Channel1_IRQHandler
+                        0x08000141    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA1_Channel2_IRQHandler
+                        0x0800016d    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA1_Channel3_IRQHandler
+                        0x0800016f    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA1_Channel4_IRQHandler
+                        0x08000171    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA1_Channel5_IRQHandler
+                        0x08000173    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA1_Channel6_IRQHandler
+                        0x08000175    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA1_Channel7_IRQHandler
+                        0x08000177    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA2_Channel1_IRQHandler
+                        0x080001b3    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA2_Channel2_IRQHandler
+                        0x080001b5    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA2_Channel3_IRQHandler
+                        0x080001b7    0x2  Code  Gb  stm32f10x_it.o [1]
+DMA2_Channel4_5_IRQHandler
+                        0x080001b9    0x2  Code  Gb  stm32f10x_it.o [1]
+DebugMonitor            0x08000151    0x2  Code  Gb  stm32f10x_it.o [1]
+EXTI0_IRQHandler        0x08000163    0x2  Code  Gb  stm32f10x_it.o [1]
+EXTI15_10_IRQHandler    0x08000145    0x2  Code  Gb  stm32f10x_it.o [1]
+EXTI1_IRQHandler        0x08000165    0x2  Code  Gb  stm32f10x_it.o [1]
+EXTI2_IRQHandler        0x08000167    0x2  Code  Gb  stm32f10x_it.o [1]
+EXTI3_IRQHandler        0x08000169    0x2  Code  Gb  stm32f10x_it.o [1]
+EXTI4_IRQHandler        0x0800016b    0x2  Code  Gb  stm32f10x_it.o [1]
+EXTI9_5_IRQHandler      0x08000183    0x2  Code  Gb  stm32f10x_it.o [1]
+FLASH_IRQHandler        0x0800015f    0x2  Code  Gb  stm32f10x_it.o [1]
+FSMC_IRQHandler         0x080001a5    0x2  Code  Gb  stm32f10x_it.o [1]
+HardFaultException      0x08000149    0x2  Code  Gb  stm32f10x_it.o [1]
+I2C1_ER_IRQHandler      0x08000191    0x2  Code  Gb  stm32f10x_it.o [1]
+I2C1_EV_IRQHandler      0x0800018f    0x2  Code  Gb  stm32f10x_it.o [1]
+I2C2_ER_IRQHandler      0x08000195    0x2  Code  Gb  stm32f10x_it.o [1]
+I2C2_EV_IRQHandler      0x08000193    0x2  Code  Gb  stm32f10x_it.o [1]
+MemManageException      0x0800014b    0x2  Code  Gb  stm32f10x_it.o [1]
+NMIException            0x08000147    0x2  Code  Gb  stm32f10x_it.o [1]
+PVD_IRQHandler          0x0800015b    0x2  Code  Gb  stm32f10x_it.o [1]
+PendSVC                 0x08000155    0x2  Code  Gb  stm32f10x_it.o [1]
+RCC_IRQHandler          0x08000161    0x2  Code  Gb  stm32f10x_it.o [1]
+RTCAlarm_IRQHandler     0x08000197    0x2  Code  Gb  stm32f10x_it.o [1]
+RTC_IRQHandler          0x08000143    0x2  Code  Gb  stm32f10x_it.o [1]
+Region$$Table$$Base     0x00000000          --   Gb  - Linker created -
+Region$$Table$$Limit    0x00000000          --   Gb  - Linker created -
+SDIO_IRQHandler         0x0800013f    0x2  Code  Gb  stm32f10x_it.o [1]
+SPI1_IRQHandler         0x0800013b    0x2  Code  Gb  stm32f10x_it.o [1]
+SPI2_IRQHandler         0x0800013d    0x2  Code  Gb  stm32f10x_it.o [1]
+SPI3_IRQHandler         0x080001a9    0x2  Code  Gb  stm32f10x_it.o [1]
+SVCHandler              0x08000153    0x2  Code  Gb  stm32f10x_it.o [1]
+SysTickHandler          0x08000157    0x2  Code  Gb  stm32f10x_it.o [1]
+TAMPER_IRQHandler       0x0800015d    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM1_BRK_IRQHandler     0x08000185    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM1_CC_IRQHandler      0x0800018b    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM1_TRG_COM_IRQHandler
+                        0x08000189    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM1_UP_IRQHandler      0x08000187    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM2_IRQHandler         0x08000131    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM3_IRQHandler         0x08000133    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM4_IRQHandler         0x0800018d    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM5_IRQHandler         0x080001a7    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM6_IRQHandler         0x080001af    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM7_IRQHandler         0x080001b1    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM8_BRK_IRQHandler     0x0800019b    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM8_CC_IRQHandler      0x080001a1    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM8_TRG_COM_IRQHandler
+                        0x0800019f    0x2  Code  Gb  stm32f10x_it.o [1]
+TIM8_UP_IRQHandler      0x0800019d    0x2  Code  Gb  stm32f10x_it.o [1]
+UART4_IRQHandler        0x080001ab    0x2  Code  Gb  stm32f10x_it.o [1]
+UART5_IRQHandler        0x080001ad    0x2  Code  Gb  stm32f10x_it.o [1]
+USART1_IRQHandler       0x08000135    0x2  Code  Gb  stm32f10x_it.o [1]
+USART2_IRQHandler       0x08000139    0x2  Code  Gb  stm32f10x_it.o [1]
+USART3_IRQHandler       0x08000137    0x2  Code  Gb  stm32f10x_it.o [1]
+USBWakeUp_IRQHandler    0x08000199    0x2  Code  Gb  stm32f10x_it.o [1]
+USB_HP_CAN_TX_IRQHandler
+                        0x0800017b    0x2  Code  Gb  stm32f10x_it.o [1]
+USB_LP_CAN_RX0_IRQHandler
+                        0x0800017d    0x2  Code  Gb  stm32f10x_it.o [1]
+UsageFaultException     0x0800014f    0x2  Code  Gb  stm32f10x_it.o [1]
+WWDG_IRQHandler         0x08000159    0x2  Code  Gb  stm32f10x_it.o [1]
+__BASEPRICONFIG         0x08000223         Code  Gb  cortexm3_macro.o [1]
+__DMB                   0x080001d5         Code  Gb  cortexm3_macro.o [1]
+__DSB                   0x080001cf         Code  Gb  cortexm3_macro.o [1]
+__GetBASEPRI            0x08000229         Code  Gb  cortexm3_macro.o [1]
+__ISB                   0x080001c9         Code  Gb  cortexm3_macro.o [1]
+__MRS_CONTROL           0x080001df         Code  Gb  cortexm3_macro.o [1]
+__MRS_MSP               0x080001fb         Code  Gb  cortexm3_macro.o [1]
+__MRS_PSP               0x080001ef         Code  Gb  cortexm3_macro.o [1]
+__MSR_CONTROL           0x080001e5         Code  Gb  cortexm3_macro.o [1]
+__MSR_MSP               0x08000201         Code  Gb  cortexm3_macro.o [1]
+__MSR_PSP               0x080001f5         Code  Gb  cortexm3_macro.o [1]
+__READ_FAULTMASK        0x0800021d         Code  Gb  cortexm3_macro.o [1]
+__READ_PRIMASK          0x0800020f         Code  Gb  cortexm3_macro.o [1]
+__RESETFAULTMASK        0x08000215         Code  Gb  cortexm3_macro.o [1]
+__RESETPRIMASK          0x08000207         Code  Gb  cortexm3_macro.o [1]
+__REV_HalfWord          0x0800022f         Code  Gb  cortexm3_macro.o [1]
+__REV_Word              0x08000233         Code  Gb  cortexm3_macro.o [1]
+__SETFAULTMASK          0x08000219         Code  Gb  cortexm3_macro.o [1]
+__SETPRIMASK            0x0800020b         Code  Gb  cortexm3_macro.o [1]
+__SEV                   0x080001c5         Code  Gb  cortexm3_macro.o [1]
+__SVC                   0x080001db         Code  Gb  cortexm3_macro.o [1]
+__WFE                   0x080001c1         Code  Gb  cortexm3_macro.o [1]
+__WFI                   0x080001bd         Code  Gb  cortexm3_macro.o [1]
+__cmain                 0x08000239         Code  Gb  cmain.o [4]
+__exit                  0x0800026d   0x14  Code  Gb  exit.o [5]
+__iar_program_start     0x08000281         Code  Gb  cstartup_M.o [4]
+__iar_systems$$module {Abs}
+                        0x00000001         Data  Gb  command line/config [2]
+__low_level_init        0x08000253    0x4  Code  Gb  low_level_init.o [3]
+__vector_table          0x08000000  0x130  Data  Gb  stm32f10x_vector.o [1]
+_call_main              0x08000245         Code  Gb  cmain.o [4]
+_exit                   0x08000261         Code  Gb  cexit.o [4]
+_main                   0x0800024f         Code  Gb  cmain.o [4]
+exit                    0x0800025b    0x4  Code  Gb  exit.o [3]
+main                    0x08000257    0x4  Code  Gb  main.o [1]
+
+
+[1] = D:\대구소프트웨어고등학교\Cortex 수업\Source\LED_Test\EWARMv5\Debug\Obj
+[2] = command line
+[3] = dl7M_tln.a
+[4] = rt7M_tl.a
+[5] = shb_l.a
+
+    348 bytes of readonly  code memory
+    304 bytes of readonly  data memory
+  8 192 bytes of readwrite data memory
+
+Errors: none
+Warnings: none

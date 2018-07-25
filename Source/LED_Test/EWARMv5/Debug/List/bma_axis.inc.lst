@@ -1,0 +1,110 @@
+###############################################################################
+#                                                                             #
+# IAR ANSI C/C++ Compiler V6.40.4.54170/W32 for ARM     29/Jan/2015  11:23:24 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  D:\2015년도 프로젝트\동우_녹십자\개발                    #
+#                    자료\Firmware\SmartTag_150121\bma_axis.inc.c             #
+#    Command line =  "D:\2015년도 프로젝트\동우_녹십자\개발                   #
+#                    자료\Firmware\SmartTag_150121\bma_axis.inc.c" -D         #
+#                    VECT_TAB_FLASH -lcN "D:\2015년도                         #
+#                    프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_150121\ #
+#                    EWARMv5\STM3210E-EVAL\List\" -o "D:\2015년도             #
+#                    프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_150121\ #
+#                    EWARMv5\STM3210E-EVAL\Obj\" --debug --endian=little      #
+#                    --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program  #
+#                    Files\IAR Systems\Embedded Workbench                     #
+#                    6.4\arm\INC\c\DLib_Config_Full.h" -I "D:\2015년도        #
+#                    프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_150121\ #
+#                    EWARMv5\..\" -I "D:\2015년도 프로젝트\동우_녹십자\개발   #
+#                    자료\Firmware\SmartTag_150121\EWARMv5\..\..\" -I         #
+#                    "D:\2015년도 프로젝트\동우_녹십자\개발                   #
+#                    자료\Firmware\SmartTag_150121\EWARMv5\..\..\FWLib\librar #
+#                    y\inc\" -I "D:\2015년도 프로젝트\동우_녹십자\개발        #
+#                    자료\Firmware\SmartTag_150121\EWARMv5\..\..\01_drv\"     #
+#                    -Ohz --use_c++_inline --require_prototypes               #
+#    List file    =  D:\2015년도 프로젝트\동우_녹십자\개발                    #
+#                    자료\Firmware\SmartTag_150121\EWARMv5\STM3210E-EVAL\List #
+#                    \bma_axis.inc.lst                                        #
+#    Object file  =  D:\2015년도 프로젝트\동우_녹십자\개발                    #
+#                    자료\Firmware\SmartTag_150121\EWARMv5\STM3210E-EVAL\Obj\ #
+#                    bma_axis.inc.o                                           #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+D:\2015년도 프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_150121\bma_axis.inc.c
+      1          
+      2          #ifndef _BMA_AXIS_C_
+      3          #define _BMA_AXIS_C_
+      4          
+      5          #include "bma_axis.inc.h"
+      6          
+      7          #if defined(_BMA020_H_)
+      8          #   define bma_axis_t       bma_axis10_t
+      9          #   define bma_axis_val     bma_axis10_val
+     10          #elif defined(_BMA150_H_)
+     11          #   define bma_axis_t       bma_axis10_t
+     12          #   define bma_axis_val     bma_axis10_val
+     13          #elif defined(_BMA180_H_)
+     14          #   define bma_axis_t       bma_axis14_t
+     15          #   define bma_axis_val     bma_axis14_val
+     16          #elif defined(_BMA220_H_)
+     17          #   define bma_axis_t       int8_t
+     18          #   define bma_axis_val(x)  ((int8_t)((x) >> 2))
+     19          #elif defined(_BMA222_H_)
+     20          #   define bma_axis_t       bma_axis8_t
+     21          #   define bma_axis_val     bma_axis8_val
+     22          #elif defined(_BMA250_H_)
+     23          #   define bma_axis_t       bma_axis10_t
+     24          #   define bma_axis_val     bma_axis10_val
+     25          #endif
+     26          
+     27          #if defined(bma_axis_t)
+     28          
+     29          /**
+     30           * @brief Format Bosch 3-axis accelerometer data samples
+     31           *
+     32           * This routine formats Bosch 3-axis accelerometer data using tunable
+     33           * configuration parameters controlling device orientation and flags that
+     34           * indicate whether or not axis data should be scaled in engineering units.
+     35           *
+     36           * @param   hal     Address of an initialized sensor hardware descriptor.
+     37           * @param   acc     Bosch accelerometer axis data samples.
+     38           * @param   data    Address of sensor_data_t structure to return values.
+     39           * @return          Nothing
+     40           */
+     41          static void format_axis_data(const sensor_hal_t *hal, const bma_axis_t acc[],
+     42          		sensor_data_t *data)
+     43          {
+     44          	/* Get axis values based based on device orientation configuration. */
+     45          	int32_t const acc_x = hal->orientation.x.sign *
+     46          			bma_axis_val(acc[hal->orientation.x.axis]);
+     47          
+     48          	int32_t const acc_y = hal->orientation.y.sign *
+     49          			bma_axis_val(acc[hal->orientation.y.axis]);
+     50          
+     51          	int32_t const acc_z = hal->orientation.z.sign *
+     52          			bma_axis_val(acc[hal->orientation.z.axis]);
+     53          
+     54          	/* Convert raw sensor sample to engineering units if requested. */
+     55          	if (data->scaled) {
+     56          		data->axis.x = raw_to_scaled(hal, acc_x);
+     57          		data->axis.y = raw_to_scaled(hal, acc_y);
+     58          		data->axis.z = raw_to_scaled(hal, acc_z);
+     59          	} else {
+     60          		data->axis.x = acc_x;
+     61          		data->axis.y = acc_y;
+     62          		data->axis.z = acc_z;
+     63          	}
+     64          }
+     65          
+     66          #endif
+     67          
+     68          #endif
+     69          
+
+Errors: 17
+Warnings: none

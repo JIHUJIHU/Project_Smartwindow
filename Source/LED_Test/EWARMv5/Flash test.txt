@@ -1,0 +1,16 @@
+	// Flash Test
+	FLASH_Unlock();
+	
+	FLASH_ErasePage(StartAddr);
+	
+	for(i=0; i<100; i+=2){           // 100바이트 데이터 쓰기 
+		FLASH_ProgramHalfWord(StartAddr+i, i);
+	}
+	
+	for(i=0; i<100; i+=2){           // 100바이트 데이터 읽기 
+		t8=*(u16 *)(0x807FC00+i); 
+		USART1_SEND(t8);
+	}
+	
+	
+	FLASH_Lock();	

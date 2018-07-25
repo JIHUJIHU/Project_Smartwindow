@@ -1,0 +1,60 @@
+###############################################################################
+#                                                                             #
+# IAR ANSI C/C++ Compiler V6.40.4.54170/W32 for ARM     12/Feb/2015  18:55:06 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  D:\2015년도 프로젝트\동우_녹십자\개발                    #
+#                    자료\Firmware\SmartTag_NTC_GPS_ACC_Save_150209\EWARMv5\F #
+#                    lash test.c                                              #
+#    Command line =  "D:\2015년도 프로젝트\동우_녹십자\개발                   #
+#                    자료\Firmware\SmartTag_NTC_GPS_ACC_Save_150209\EWARMv5\F #
+#                    lash test.c" -D VECT_TAB_FLASH -lcN "D:\2015년도         #
+#                    프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_NTC_GPS #
+#                    _ACC_Save_150209\EWARMv5\STM3210E-EVAL\List\" -o         #
+#                    "D:\2015년도 프로젝트\동우_녹십자\개발                   #
+#                    자료\Firmware\SmartTag_NTC_GPS_ACC_Save_150209\EWARMv5\S #
+#                    TM3210E-EVAL\Obj\" --debug --endian=little               #
+#                    --cpu=Cortex-M3 -e --fpu=None --dlib_config "C:\Program  #
+#                    Files\IAR Systems\Embedded Workbench                     #
+#                    6.4\arm\INC\c\DLib_Config_Full.h" -I "D:\2015년도        #
+#                    프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_NTC_GPS #
+#                    _ACC_Save_150209\EWARMv5\..\" -I "D:\2015년도            #
+#                    프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_NTC_GPS #
+#                    _ACC_Save_150209\EWARMv5\..\..\" -I "D:\2015년도         #
+#                    프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_NTC_GPS #
+#                    _ACC_Save_150209\EWARMv5\..\..\FWLib\library\inc\" -I    #
+#                    "D:\2015년도 프로젝트\동우_녹십자\개발                   #
+#                    자료\Firmware\SmartTag_NTC_GPS_ACC_Save_150209\EWARMv5\. #
+#                    .\..\01_drv\" -Ohz --use_c++_inline --require_prototypes #
+#    List file    =  D:\2015년도 프로젝트\동우_녹십자\개발                    #
+#                    자료\Firmware\SmartTag_NTC_GPS_ACC_Save_150209\EWARMv5\S #
+#                    TM3210E-EVAL\List\Flash test.lst                         #
+#    Object file  =  D:\2015년도 프로젝트\동우_녹십자\개발                    #
+#                    자료\Firmware\SmartTag_NTC_GPS_ACC_Save_150209\EWARMv5\S #
+#                    TM3210E-EVAL\Obj\Flash test.o                            #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+D:\2015년도 프로젝트\동우_녹십자\개발 자료\Firmware\SmartTag_NTC_GPS_ACC_Save_150209\EWARMv5\Flash test.c
+      1          	// Flash Test
+      2          	FLASH_Unlock();
+      3          	
+      4          	FLASH_ErasePage(StartAddr);
+      5          	
+      6          	for(i=0; i<100; i+=2){           // 100바이트 데이터 쓰기 
+      7          		FLASH_ProgramHalfWord(StartAddr+i, i);
+      8          	}
+      9          	
+     10          	for(i=0; i<100; i+=2){           // 100바이트 데이터 읽기 
+     11          		t8=*(u16 *)(0x807FC00+i); 
+     12          		USART1_SEND(t8);
+     13          	}
+     14          	
+     15          	
+     16          	FLASH_Lock();	
+
+Errors: 4
+Warnings: 1

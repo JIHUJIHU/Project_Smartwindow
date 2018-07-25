@@ -1,0 +1,490 @@
+###############################################################################
+#
+# IAR ANSI C/C++ Compiler V8.11.2.13589/W32 for ARM       16/Apr/2018  21:18:20
+# Copyright 1999-2017 IAR Systems AB.
+#
+#    Cpu mode     =  thumb
+#    Endian       =  little
+#    Source file  =  
+#        D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\main.c
+#    Command line =  
+#        -f C:\Users\YUJINP~1\AppData\Local\Temp\EW79DD.tmp
+#        (D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\main.c
+#        -D VECT_TAB_FLASH -lcN
+#        D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\EWARMv5\Debug\List
+#        -o
+#        D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\EWARMv5\Debug\Obj
+#        --debug --endian=little --cpu=Cortex-M3 -e --fpu=None --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\arm\INC\c\DLib_Config_Full.h" -I
+#        D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\EWARMv5\..\
+#        -I
+#        D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\EWARMv5\..\..\
+#        -I
+#        D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\EWARMv5\..\..\FWLib\library\inc\
+#        -Ohs --use_c++_inline --require_prototypes)
+#    Locale       =  C
+#    List file    =  
+#        D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\EWARMv5\Debug\List\main.lst
+#    Object file  =  
+#        D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\EWARMv5\Debug\Obj\main.o
+#
+###############################################################################
+
+D:\ESTK@@@@\@@@@@@@@\workspace_ch7\07Timer_empty\main.c
+      1          #include "stm32f10x_lib.h"
+      2          #include "stm32f10x_usart.h"
+      3          #include "stm32f10x_adc.h"
+      4          #include "stm32f10x_dma.h"
+      5          
+      6          #include <stdio.h>   
+      7          #include "main.h"
+      8          
+      9          #define  ADC1_DR_Address    ((u32)0x4001244C)
+     10          u16 ADCConvertedValue[1];
+     11          extern u16 adc1_buffer[1];
+     12          
+     13          
+     14          void RCC_Configuration(void);
+     15          void GPIO_Configuration(void);
+     16          void USART1_Configuration(void);
+     17          void ADC_Configuration(void);
+     18          void DMA1_Configuration(void);
+     19          void NVIC_Configuration(void);
+     20          
+     21          void USART1_SEND(u8 i); 
+     22          void putstr(char *str);
+     23          
+     24          void Timer2_Init(void);
+     25          void Timer3_Init(void);
+     26          
+     27          extern u8 Buffer_USART1[50],  USART1_rx_end, USART1_len;
+     28          
+     29          extern unsigned int Timer2_cnt;
+     30          extern unsigned int Timer3_cnt;
+     31          
+     32          u8 T100ms = 0, T1s = 0;
+     33          
+     34          void main(void)
+     35          {
+     36               //u8 i;
+     37               u16 AD_value;
+     38               
+     39               RCC_Configuration();
+     40               
+     41               RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA |  RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC |
+     42                                       RCC_APB2Periph_GPIOE |  RCC_APB2Periph_AFIO, ENABLE);
+     43               
+     44               RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+     45               RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+     46               
+     47               GPIO_Configuration();
+     48               USART1_Configuration();
+     49               ADC_Configuration();
+     50               DMA1_Configuration();
+     51               NVIC_Configuration();     
+     52               Timer2_Init();             // TIM2 초기화
+     53               Timer3_Init();             // TIM3 초기화
+     54               
+     55               putstr("Start Program. \n");
+     56          
+     57               while(1){        
+     58                   
+     59                 // LED2는 0.2초 마다 점멸, LED3는 0.4초 마다 점멸, LED4는 1초마다 점멸
+     60                   if((Timer2_cnt % 199)<100)
+     61                        GPIO_SetBits(GPIOE, GPIO_Pin_2);
+     62                   else
+     63                        GPIO_ResetBits(GPIOE, GPIO_Pin_2);
+     64                   
+     65                   if((Timer2_cnt % 499)<200)
+     66                        GPIO_SetBits(GPIOE, GPIO_Pin_3);
+     67                   else
+     68                        GPIO_ResetBits(GPIOE, GPIO_Pin_3);
+     69                   
+     70                   if((Timer2_cnt % 999)<500)
+     71                        GPIO_SetBits(GPIOE, GPIO_Pin_4);
+     72                   else
+     73                        GPIO_ResetBits(GPIOE, GPIO_Pin_4);   
+     74          
+     75               }
+     76          }
+     77          
+     78          void USART1_SEND(u8 i)
+     79          {
+     80              USART_SendData(USART1, i);     
+     81              while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);      
+     82          }
+     83          
+     84          void putstr(char *str) 
+     85          { 
+     86              char ch;     
+     87              while((ch=*str)!= '\0') { 
+     88                  USART_SendData(USART1, *str);     
+     89                  while(USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);    
+     90                  str++; 
+     91              } 
+     92           }
+     93          
+     94          void GPIO_Configuration(void)
+     95          {
+     96               GPIO_InitTypeDef GPIO_InitStructure;      
+     97               
+     98               RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE); 
+     99               RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); 
+    100          
+    101               
+    102               GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;          //USART1, TX
+    103               GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+    104               GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    105               GPIO_Init(GPIOA, &GPIO_InitStructure);   
+    106          
+    107               GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;          //USART1, RX
+    108               GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    109               GPIO_Init(GPIOA, &GPIO_InitStructure); 
+    110          
+    111           
+    112                 // KEY
+    113               GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 |
+    114                                             GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_13;
+    115               GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    116               GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;   
+    117               GPIO_Init(GPIOC, &GPIO_InitStructure);
+    118          
+    119                 // LED
+    120               GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4; 
+    121               GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    122               GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;   
+    123               GPIO_Init(GPIOE, &GPIO_InitStructure);      
+    124          
+    125                 // 부저
+    126               GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5; 
+    127               GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    128               GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;   
+    129               GPIO_Init(GPIOB, &GPIO_InitStructure); 
+    130          
+    131               
+    132                 // Analog Input
+    133               GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5; 
+    134               GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+    135               GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;   
+    136               GPIO_Init(GPIOC, &GPIO_InitStructure); 
+    137               
+    138          }  
+    139          
+    140          void USART1_Configuration(void)
+    141          {
+    142               USART_InitTypeDef USART_InitStructure;
+    143               USART_ClockInitTypeDef  USART_ClockInitStructure;     
+    144               NVIC_InitTypeDef NVIC_InitStructure;      
+    145               
+    146               USART_ClockInitStructure.USART_Clock = USART_Clock_Disable;
+    147               USART_ClockInitStructure.USART_CPOL = USART_CPOL_Low;
+    148               USART_ClockInitStructure.USART_CPHA = USART_CPHA_2Edge;
+    149               USART_ClockInitStructure.USART_LastBit = USART_LastBit_Disable;
+    150               USART_ClockInit(USART1, &USART_ClockInitStructure);
+    151          
+    152               USART_InitStructure.USART_BaudRate = 115200;
+    153               USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+    154               USART_InitStructure.USART_StopBits = USART_StopBits_1;
+    155               USART_InitStructure.USART_Parity = USART_Parity_No ;
+    156               USART_InitStructure.USART_HardwareFlowControl =   USART_HardwareFlowControl_None;
+    157          
+    158               USART_InitStructure.USART_Mode = USART_Mode_Rx |  USART_Mode_Tx;     
+    159               USART_Init(USART1, &USART_InitStructure);         
+    160               USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);              
+    161               NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQChannel; 
+    162               NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;   
+    163               NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;         
+    164               NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;             
+    165               NVIC_Init(&NVIC_InitStructure);     
+    166               USART_Cmd(USART1, ENABLE);
+    167          }
+    168          
+    169          void ADC_Configuration(void)
+    170          {
+    171               ADC_InitTypeDef ADC_InitStructure;
+    172          
+    173               ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+    174               ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+    175               ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+    176               ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+    177               ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+    178               ADC_InitStructure.ADC_NbrOfChannel = 1;
+    179               ADC_Init(ADC1, &ADC_InitStructure);
+    180          
+    181               ADC_RegularChannelConfig(ADC1, ADC_Channel_15, 1, ADC_SampleTime_55Cycles5);
+    182             
+    183               ADC_DMACmd(ADC1, ENABLE);
+    184               ADC_Cmd(ADC1, ENABLE);
+    185               ADC_ResetCalibration(ADC1);   
+    186               while(ADC_GetResetCalibrationStatus(ADC1));
+    187               ADC_StartCalibration(ADC1);     
+    188               while(ADC_GetCalibrationStatus(ADC1));
+    189               ADC_SoftwareStartConvCmd(ADC1, ENABLE);    
+    190          }
+    191          
+    192          void DMA1_Configuration(void)
+    193           {
+    194           
+    195           	DMA_InitTypeDef DMA_InitStructure;
+    196          
+    197            	DMA_DeInit(DMA1_Channel1);
+    198            	DMA_InitStructure.DMA_PeripheralBaseAddr = ADC1_DR_Address;         	   // DMA 주변장치 데이터 시작 어드레스
+    199            	DMA_InitStructure.DMA_MemoryBaseAddr = (u32)&ADCConvertedValue;          // DMA 메모리 데이터 시작 어드레스
+    200            	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;                      // 주변장치 데이터를 보낼 데이터로
+    201            	DMA_InitStructure.DMA_BufferSize = 1;                                   // 보낼 데이터 크기(byte단위)
+    202            	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;                // 자동으로 주변장치 데이터 어드레스 증가 금지
+    203          
+    204               DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;  
+    205            	//DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;                     // 자동으로 메모리 데이터 어드레스 증가 금지  
+    206            
+    207            	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;      // 주변장치에서 한번에 16bit
+    208            	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;           // 메모리에서 한번에 16bit
+    209            	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;                               // 환형 큐 모드, 보낼 데이터 크기가 없어지면 다시 reload
+    210            	DMA_InitStructure.DMA_Priority = DMA_Priority_High;                           // DMA 우선순위 높음
+    211            	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;                                        // 메모리 to 메모리 모드 아님
+    212            	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+    213            
+    214            	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);  //TC:Transfer complete
+    215            
+    216            	/* Enable DMA1 channel1 */
+    217            	DMA_Cmd(DMA1_Channel1, ENABLE); 
+    218          }
+    219          
+    220          void NVIC_Configuration(void)
+    221          {
+    222          	NVIC_InitTypeDef NVIC_InitStructure;
+    223          	
+    224          	#ifdef  VECT_TAB_RAM  
+    225            	/* Set the Vector Table base location at 0x20000000 */ 
+    226            	NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
+    227          	#else  /* VECT_TAB_FLASH  */
+    228            	/* Set the Vector Table base location at 0x08000000 */ 
+    229            	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);   
+    230          	#endif
+    231            
+    232           	NVIC_InitStructure.NVIC_IRQChannel=DMA1_Channel1_IRQChannel;
+    233            	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
+    234            	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0;
+    235            	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
+    236            	NVIC_Init(&NVIC_InitStructure);  
+    237            
+    238          }
+    239          
+    240          void RCC_Configuration(void)
+    241          {   
+    242               ErrorStatus HSEStartUpStatus;
+    243               /* RCC system reset(for debug purpose) */
+    244               RCC_DeInit();
+    245          
+    246               /* Enable HSE */
+    247               RCC_HSEConfig(RCC_HSE_ON);       
+    248          
+    249               /* Wait till HSE is ready */
+    250               HSEStartUpStatus = RCC_WaitForHSEStartUp();
+    251          
+    252               if(HSEStartUpStatus == SUCCESS)
+    253               {
+    254                    /* Enable Prefetch Buffer */
+    255                    FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+    256          
+    257                    /* Flash 2 wait state */
+    258                    FLASH_SetLatency(FLASH_Latency_2);
+    259           	
+    260                    /* HCLK = SYSCLK */
+    261                    RCC_HCLKConfig(RCC_SYSCLK_Div1); 
+    262            
+    263                    /* PCLK2 = HCLK */
+    264                    RCC_PCLK2Config(RCC_HCLK_Div1); 
+    265          
+    266                    /* PCLK1 = HCLK/2 */
+    267                    RCC_PCLK1Config(RCC_HCLK_Div2);
+    268          
+    269                    /* PLLCLK = 8MHz * 9 = 72 MHz */
+    270                    RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+    271          
+    272                    /* Enable PLL */ 
+    273                    RCC_PLLCmd(ENABLE);
+    274          
+    275                    /* Wait till PLL is ready */
+    276                    while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
+    277                    {
+    278                    }
+    279          
+    280                    /* Select PLL as system clock source */
+    281                    RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+    282          
+    283                    /* Wait till PLL is used as system clock source */
+    284                    while(RCC_GetSYSCLKSource() != 0x08)
+    285                    {
+    286                    }
+    287               }
+    288          }
+    289          
+    290          void Timer2_Init(void)
+    291          {
+    292              NVIC_InitTypeDef NVIC_InitStructure;
+    293              TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+    294          
+    295              //RCC를 통한 Timer2 Clock 활성화(Enable)
+    296          
+    297              
+    298              //NVIC를 통한 Timer2 인터럽트 설정
+    299          
+    300              
+    301              
+    302              
+    303              
+    304              
+    305              
+    306          
+    307              //Preriod 값 = 100-1(0-99)
+    308          
+    309              //72MHz -> Prescaler = 720, -> 100kHz(10usec)
+    310          
+    311              //Clock Division = 0, 클럭 그대로 사용, 00 = Tclk, 01 = Tclk*2, 10 = Tclk*4
+    312          
+    313              //Timer 모드 = Counter Up 모드(Count가 0부터 증가)
+    314          
+    315              //Timer Initialization
+    316          
+    317          
+    318              
+    319              
+    320              
+    321          }
+    322          
+    323          void Timer3_Init(void)
+    324          {
+    325          
+    326            
+    327            
+    328            
+    329            
+    330            
+    331            
+    332            
+    333            
+    334            
+    335            
+    336          }
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+      32   ADC_Configuration
+        32   -> ADC_Cmd
+        32   -> ADC_DMACmd
+        32   -> ADC_GetCalibrationStatus
+        32   -> ADC_GetResetCalibrationStatus
+        32   -> ADC_Init
+        32   -> ADC_RegularChannelConfig
+        32   -> ADC_ResetCalibration
+        32   -> ADC_SoftwareStartConvCmd
+        32   -> ADC_StartCalibration
+      56   DMA1_Configuration
+        56   -> DMA_Cmd
+        56   -> DMA_DeInit
+        56   -> DMA_ITConfig
+        56   -> DMA_Init
+      16   GPIO_Configuration
+        16   -> GPIO_Init
+        16   -> RCC_APB2PeriphClockCmd
+       8   NVIC_Configuration
+         8   -> NVIC_Init
+         8   -> NVIC_SetVectorTable
+       8   RCC_Configuration
+         8   -> FLASH_PrefetchBufferCmd
+         8   -> FLASH_SetLatency
+         8   -> RCC_DeInit
+         8   -> RCC_GetFlagStatus
+         8   -> RCC_GetSYSCLKSource
+         8   -> RCC_HCLKConfig
+         8   -> RCC_HSEConfig
+         8   -> RCC_PCLK1Config
+         8   -> RCC_PCLK2Config
+         8   -> RCC_PLLCmd
+         8   -> RCC_PLLConfig
+         8   -> RCC_SYSCLKConfig
+         8   -> RCC_WaitForHSEStartUp
+       0   Timer2_Init
+       0   Timer3_Init
+      40   USART1_Configuration
+        40   -> NVIC_Init
+        40   -> USART_ClockInit
+        40   -> USART_Cmd
+        40   -> USART_ITConfig
+        40   -> USART_Init
+       8   USART1_SEND
+         8   -> USART_GetFlagStatus
+         8   -> USART_SendData
+      24   __read
+        24   -> USART_GetFlagStatus
+        24   -> USART_ReceiveData
+      24   __write
+        24   -> USART_GetFlagStatus
+        24   -> USART_SendData
+       8   delay_ms
+         8   -> delay_us
+       0   delay_us
+      24   main
+        24   -> ADC_Configuration
+        24   -> DMA1_Configuration
+        24   -> GPIO_Configuration
+        24   -> GPIO_ResetBits
+        24   -> GPIO_SetBits
+        24   -> NVIC_Configuration
+        24   -> RCC_AHBPeriphClockCmd
+        24   -> RCC_APB2PeriphClockCmd
+        24   -> RCC_Configuration
+        24   -> USART1_Configuration
+        24   -> putstr
+      16   putstr
+        16   -> USART_GetFlagStatus
+        16   -> USART_SendData
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable9
+       4  ??DataTable9_1
+       4  ??DataTable9_2
+       4  ??DataTable9_3
+       4  ??DataTable9_4
+       4  ??DataTable9_5
+       4  ??DataTable9_6
+       4  ??DataTable9_7
+       4  ??DataTable9_8
+       4  ??DataTable9_9
+      20  ?_0
+       2  ADCConvertedValue
+     114  ADC_Configuration
+      88  DMA1_Configuration
+     186  GPIO_Configuration
+      46  NVIC_Configuration
+     104  RCC_Configuration
+       1  T100ms
+       1  T1s
+       2  Timer2_Init
+       2  Timer3_Init
+     114  USART1_Configuration
+      26  USART1_SEND
+      62  __read
+      74  __write
+      22  delay_ms
+      22  delay_us
+     182  main
+      40  putstr
+
+ 
+     4 bytes in section .bss
+ 1 144 bytes in section .text
+ 
+ 1 144 bytes of CODE memory
+     4 bytes of DATA memory
+
+Errors: none
+Warnings: 4

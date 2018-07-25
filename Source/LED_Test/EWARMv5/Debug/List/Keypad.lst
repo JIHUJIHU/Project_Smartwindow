@@ -1,0 +1,292 @@
+###############################################################################
+#                                                                             #
+# IAR ANSI C/C++ Compiler V6.40.4.54170/W32 for ARM     21/Jan/2015  23:02:39 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\Keypad.c                                    #
+#    Command line =  "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\Keypad.c" -D VECT_TAB_FLASH -lcN            #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\List\" -o             #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\Obj\" --debug         #
+#                    --endian=little --cpu=Cortex-M3 -e --fpu=None            #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.4\arm\INC\c\DLib_Config_Full.h" -I           #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\" -I "D:\2014년도                #
+#                    프로젝트\간단한 개발\voc_김한수박사\Firmware\TVOC_LCD_TG #
+#                    S_GPS_CDMA_SD_RTC_Sen_141215\EWARMv5\..\..\" -I          #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\..\FWLib\library\inc\" -I        #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\..\01_drv\" -Ohz                 #
+#                    --use_c++_inline --require_prototypes                    #
+#    List file    =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\List\Keypad.lst       #
+#    Object file  =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\Obj\Keypad.o          #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+D:\2014년도 프로젝트\간단한 개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RTC_Sen_141215\Keypad.c
+      1          #include "stm32f10x_it.h"
+      2          #include "stm32f10x_rcc.h"
+      3          #include "Keypad.h"
+      4          
+      5          //void InitKeypad(void);
+      6          void clear_mem(unsigned char *, unsigned int );
+      7          unsigned char key_scan_func(unsigned char );  
+      8          unsigned char key_check(void);  
+      9          void key_scan(void);
+     10          void keyout(unsigned char outKey);
+     11          unsigned char key_read(void);
+     12          void Delay_i(vu32 nCount);
+     13          
+     14          extern void USART1_SEND(u8 i);
+     15          
+     16          KEYCHK	 key;
+     17          KEYFLAG	 keyflag;
+     18          
+     19          void InitKeypad(void) 
+     20          {
+     21          	key.newkey = NOKEY;
+     22          	key.oldkey = NOKEY;
+     23          	key.kcount = BOUNCE;
+     24          	key.kflag = CLEAR; 
+     25          	key.kiflag = CLEAR; 
+     26          	/* clear key flags */
+     27          	clear_mem((unsigned char *)&keyflag, sizeof(KEYFLAG));
+     28          //	keyflag.mode = 1;
+     29          	keyflag.mode = 0;
+     30          	keyflag.menu_mode = 1;
+     31          	keyflag.setup_mode = 1;
+     32          	keyflag.analysis_mode = 1;
+     33          	keyflag.analysis_change = 0;
+     34          	keyflag.result_change = 0;
+     35          }  
+     36          
+     37          void clear_mem(unsigned char *s1, unsigned int len)
+     38          {
+     39          	int 	i;
+     40          	for (i = 0; i != len; i++)	*s1++ = 0x00;	
+     41          }    
+     42          
+     43          unsigned char key_scan_func(unsigned char outKey)
+     44          {
+     45          	unsigned char inKey;
+     46          	u16 key_in;
+     47          	u16 i;
+     48          
+     49               keyout(outKey);		// send
+     50          	
+     51          	for(i=0 ; i<500 ; i++);
+     52          
+     53          	//inKey = key_read();	
+     54          
+     55               key_in=GPIO_ReadInputData(GPIOD);	
+     56          	
+     57          	key_in &= 0xf800;         // mask 0~10bit
+     58          	key_in = key_in >>8;	
+     59          	
+     60          	inKey = (u8)key_in;	
+     61          
+     62          	GPIO_SetBits(GPIOE, KEY_OUT1 | KEY_OUT2 | KEY_OUT3 | KEY_OUT4 | KEY_OUT5);
+     63          
+     64               return(inKey & KEY_IN_MASK);	// 0xf8
+     65          }
+     66          
+     67          unsigned char key_check(void)
+     68          {
+     69          	unsigned char keyName = NOKEY;		// 0xff
+     70          	unsigned char inKey;
+     71          
+     72           	inKey = key_scan_func(1);
+     73          	if((inKey & 0x08)==0x00) keyName = ONE;
+     74          	else if((inKey & 0x10)==0x00) keyName = FOUR;
+     75          	else if((inKey & 0x20)==0x00) keyName = SEVEN;
+     76          	else if((inKey & 0x40)==0x00) keyName = STAR;
+     77          
+     78           	inKey = key_scan_func(2);
+     79          	if((inKey & 0x08)==0x00) keyName = TWO;
+     80          	else if((inKey & 0x10)==0x00) keyName = FIVE;
+     81          	else if((inKey & 0x20)==0x00) keyName = EIGHT;
+     82          	else if((inKey & 0x40)==0x00) keyName = ZERO;
+     83          
+     84           	inKey = key_scan_func(3);
+     85          	if((inKey & 0x08)==0x00) keyName = THREE;
+     86          	else if((inKey & 0x10)==0x00) keyName = SIX;
+     87          	else if((inKey & 0x20)==0x00) keyName = NINE;
+     88          	else if((inKey & 0x40)==0x00) keyName = SHARP;
+     89          	
+     90           	inKey = key_scan_func(4);
+     91          	if((inKey & 0x08)==0x00) keyName = UP;
+     92          	else if((inKey & 0x10)==0x00) keyName = LEFT;
+     93          	else if((inKey & 0x20)==0x00) keyName = RIGHT;
+     94          	else if((inKey & 0x40)==0x00) keyName = DOWN;
+     95          
+     96          	inKey = key_scan_func(5);
+     97          	if((inKey & 0x80)==0x00) keyName = ENTER;
+     98          
+     99          	return(keyName);
+    100          }
+    101          /*
+    102                Keyout line supply 'LOW'
+    103          */
+    104          void keyout(unsigned char outKey)			 
+    105          {
+    106          	 GPIO_SetBits(GPIOE, KEY_OUT1);
+    107          	 GPIO_SetBits(GPIOE, KEY_OUT2);
+    108          	 GPIO_SetBits(GPIOE, KEY_OUT3);
+    109          	 GPIO_SetBits(GPIOE, KEY_OUT4);
+    110          	 GPIO_SetBits(GPIOE, KEY_OUT5);
+    111          	 
+    112          	 switch(outKey){
+    113          	 	case 1:
+    114          		  GPIO_ResetBits(GPIOE, KEY_OUT1);
+    115          		  break;
+    116          		  
+    117          	 	case 2:
+    118          		  GPIO_ResetBits(GPIOE, KEY_OUT2);
+    119          		  break;
+    120          	   
+    121          		 case 3:
+    122          		   GPIO_ResetBits(GPIOE, KEY_OUT3);
+    123          		   break;
+    124          	   
+    125          		 case 4:
+    126          		   GPIO_ResetBits(GPIOE, KEY_OUT4);
+    127          		   break;
+    128          	   
+    129          	 	case 5:
+    130          		   GPIO_ResetBits(GPIOE, KEY_OUT5);
+    131          		   break;
+    132          	   
+    133          	 	default: break;	   
+    134          	   
+    135          	 }
+    136          
+    137          	  
+    138          }
+    139          /*
+    140          unsigned char key_read(void)			 
+    141          {
+    142            	u8  inKey;
+    143               u16 key_in;
+    144          	
+    145               key_in=GPIO_ReadInputData(GPIOD);
+    146          	
+    147          	
+    148          	key_in &= 0xf800;         // mask 0~10bit
+    149          	key_in = key_in >>8;	
+    150          	
+    151          	inKey = (u8)key_in;
+    152          	
+    153          	return inKey;
+    154          }
+    155          */
+    156          
+    157          void key_scan(void)
+    158          {	
+    159          	unsigned char inkey;
+    160               u8 key_in;
+    161          	
+    162          	inkey = key_check();            // button number
+    163          	
+    164          
+    165          
+    166          /*     
+    167               while(1){
+    168                    key_in = key_check();   
+    169                    if(key_in == NOKEY)break; 
+    170               }
+    171          */
+    172          	if((key.newkey != inkey)&&(inkey!=0xff)){  
+    173          	  
+    174          	  	USART1_SEND(0xAC);
+    175          	     USART1_SEND(inkey);
+    176                 
+    177                    for(key_in=0; key_in<50; key_in++)Delay_i(40000);
+    178                    
+    179                    key.newkey = inkey;
+    180          		key.oldkey = NOKEY;                 //mr.son
+    181          		key.kcount = BOUNCE;
+    182          		key.kflag = SET;
+    183          	}
+    184          }
+    185          
+    186          void Delay_i(vu32 nCount)
+    187          {
+    188            for(; nCount != 0; nCount--);
+    189          }
+    190          
+    191          
+    192          
+    193          
+    194          
+    195          
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+        4  Delay_i
+        8  InitKeypad
+              8 -> clear_mem
+        0  clear_mem
+        8  key_check
+              8 -> key_scan_func
+       16  key_scan
+             16 -> Delay_i
+             16 -> USART1_SEND
+             16 -> key_check
+        8  key_scan_func
+              8 -> GPIO_ReadInputData
+              8 -> GPIO_SetBits
+              8 -> keyout
+       16  keyout
+              0 -> GPIO_ResetBits
+             16 -> GPIO_SetBits
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable3
+       4  ??DataTable3_1
+       4  ??DataTable3_2
+       4  ??DataTable3_3
+       6  ?Subroutine0
+      20  Delay_i
+      48  InitKeypad
+      18  clear_mem
+      12  key
+     164  key_check
+      62  key_scan
+      32  key_scan_func
+      16  keyflag
+     106  keyout
+
+ 
+  28 bytes in section .bss
+ 472 bytes in section .text
+ 
+ 472 bytes of CODE memory
+  28 bytes of DATA memory
+
+Errors: none
+Warnings: none

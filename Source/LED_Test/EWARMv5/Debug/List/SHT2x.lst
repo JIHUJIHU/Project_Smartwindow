@@ -1,0 +1,379 @@
+###############################################################################
+#                                                                             #
+# IAR ANSI C/C++ Compiler V6.40.4.54170/W32 for ARM     21/Jan/2015  23:02:35 #
+# Copyright 1999-2012 IAR Systems AB.                                         #
+#                                                                             #
+#    Cpu mode     =  thumb                                                    #
+#    Endian       =  little                                                   #
+#    Source file  =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\SHT2x.c                                     #
+#    Command line =  "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\SHT2x.c" -D VECT_TAB_FLASH -lcN             #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\List\" -o             #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\Obj\" --debug         #
+#                    --endian=little --cpu=Cortex-M3 -e --fpu=None            #
+#                    --dlib_config "C:\Program Files\IAR Systems\Embedded     #
+#                    Workbench 6.4\arm\INC\c\DLib_Config_Full.h" -I           #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\" -I "D:\2014년도                #
+#                    프로젝트\간단한 개발\voc_김한수박사\Firmware\TVOC_LCD_TG #
+#                    S_GPS_CDMA_SD_RTC_Sen_141215\EWARMv5\..\..\" -I          #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\..\FWLib\library\inc\" -I        #
+#                    "D:\2014년도 프로젝트\간단한                             #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\..\..\01_drv\" -Ohz                 #
+#                    --use_c++_inline --require_prototypes                    #
+#    List file    =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\List\SHT2x.lst        #
+#    Object file  =  D:\2014년도 프로젝트\간단한                              #
+#                    개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RT #
+#                    C_Sen_141215\EWARMv5\STM3210E-EVAL\Obj\SHT2x.o           #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+D:\2014년도 프로젝트\간단한 개발\voc_김한수박사\Firmware\TVOC_LCD_TGS_GPS_CDMA_SD_RTC_Sen_141215\SHT2x.c
+      1          //#include "hw_config.h"
+      2          
+      3          #include "SHT2x.h"
+      4          #include "I2C_HAL.h"
+      5          #include "typedefs.h"
+      6          
+      7          u8t SHT2x_CheckCrc(u8t ddata[], u8t nbrOfBytes, u8t checksum);
+      8          u8t SHT2x_ReadUserRegister(u8t *pRegisterValue);
+      9          u8t SHT2x_WriteUserRegister(u8t *pRegisterValue);
+     10          u8t SHT2x_MeasureHM(etSHT2xMeasureType eSHT2xMeasureType, nt16 *pMeasurand);
+     11          u8t SHT2x_MeasurePoll(etSHT2xMeasureType eSHT2xMeasureType, nt16 *pMeasurand);
+     12          u8t SHT2x_SoftReset(void);
+     13          float SHT2x_CalcRH(u16t u16sRH);
+     14          float SHT2x_CalcTemperatureC(u16t u16sT);
+     15          u8t SHT2x_GetSerialNumber(u8t u8SerialNumber[]);
+     16          
+     17          
+     18          u8t SHT2x_CheckCrc(u8t ddata[], u8t nbrOfBytes, u8t checksum)
+     19          {
+     20            u8t crc = 0;	
+     21            u8t byteCtr, bbit;
+     22          
+     23            //calculates 8-Bit checksum with given polynomial
+     24            for (byteCtr = 0; byteCtr < nbrOfBytes; ++byteCtr)
+     25            { crc ^= (ddata[byteCtr]);
+     26          
+     27              for (bbit = 8; bbit > 0; --bbit){
+     28          //       if (crc & 0x80) crc = (crc << 1) ^ POLYNOMIAL;
+     29                 if (crc & 0x80) crc = (crc << 1) ^ 0x131;
+     30                 else crc = (crc << 1);
+     31              }
+     32            }
+     33            if (crc != checksum) return CHECKSUM_ERROR;
+     34            else return 0;
+     35          }
+     36          
+     37          //===========================================================================
+     38          u8t SHT2x_ReadUserRegister(u8t *pRegisterValue)
+     39          {
+     40            u8t checksum;   //variable for checksum byte
+     41            u8t error=0;    //variable for error code
+     42          
+     43            I2c_StartCondition();
+     44            error |= I2c_WriteByte (I2C_ADR_W); 
+     45          
+     46            error |= I2c_WriteByte (USER_REG_R);
+     47               
+     48            I2c_StartCondition();	
+     49            error |= I2c_WriteByte (I2C_ADR_R);
+     50            
+     51           
+     52            *pRegisterValue = I2c_ReadByte(ACK);
+     53            checksum=I2c_ReadByte(NO_ACK);
+     54          
+     55            error |= SHT2x_CheckCrc (pRegisterValue,1,checksum);
+     56            I2c_StopCondition();
+     57            return error;
+     58          }
+     59          
+     60          //===========================================================================
+     61          u8t SHT2x_WriteUserRegister(u8t *pRegisterValue)
+     62          {
+     63            u8t error=0;   //variable for error code
+     64          
+     65            I2c_StartCondition();
+     66            error |= I2c_WriteByte (I2C_ADR_W);
+     67            error |= I2c_WriteByte (USER_REG_W);
+     68            error |= I2c_WriteByte (*pRegisterValue);
+     69            I2c_StopCondition();
+     70            return error;
+     71          }
+     72          
+     73          //===========================================================================
+     74          u8t SHT2x_MeasureHM(etSHT2xMeasureType eSHT2xMeasureType, nt16 *pMeasurand)
+     75          
+     76          {
+     77             u8t  checksum;   
+     78             u8t  ddata[2];    
+     79             u8t  error=0,read_p;    
+     80             u16t i;          
+     81          
+     82             I2c_StartCondition();
+     83             error |= I2c_WriteByte (I2C_ADR_W); 
+     84          
+     85             switch(eSHT2xMeasureType){
+     86                case HUMIDITY: error |= I2c_WriteByte (TRIG_RH_MEASUREMENT_HM); break;
+     87                case TEMP    : error |= I2c_WriteByte (TRIG_T_MEASUREMENT_HM);  break;
+     88          	  default:break;
+     89             }
+     90          
+     91              I2c_StartCondition();
+     92              error |= I2c_WriteByte (I2C_ADR_R);
+     93          
+     94             for(i=0; i<1000; i++){         // wait until master hold is released or
+     95                 Delay_10us(1000);    // a timeout (~1s) is reached
+     96                    
+     97            	  read_p = SCL_read();   
+     98                 if (read_p==1) break;
+     99             }
+    100             if(read_p==0) error |= TIME_OUT_ERROR;
+    101          
+    102             SCL_out_mode();
+    103          
+    104            //-- read two data bytes and one checksum byte --
+    105             
+    106            pMeasurand->s16.u8H = ddata[0] = I2c_ReadByte(ACK);  
+    107            pMeasurand->s16.u8L = ddata[1] = I2c_ReadByte(ACK);
+    108          
+    109          
+    110            checksum=I2c_ReadByte(NO_ACK);
+    111          
+    112            //-- verify checksum --
+    113            error |= SHT2x_CheckCrc (ddata,2,checksum);
+    114            I2c_StopCondition();
+    115            return error;
+    116          }
+    117          
+    118          //===========================================================================
+    119          u8t SHT2x_MeasurePoll(etSHT2xMeasureType eSHT2xMeasureType, nt16 *pMeasurand)
+    120          {
+    121            u8t  checksum;   
+    122            u8t  ddata[2];   
+    123            u8t  error=0;    
+    124            u16t i=0;        
+    125          
+    126            I2c_StartCondition();
+    127            error |= I2c_WriteByte (I2C_ADR_W); 
+    128          
+    129            switch(eSHT2xMeasureType){
+    130               case HUMIDITY: error |= I2c_WriteByte (TRIG_RH_MEASUREMENT_POLL); break;
+    131               case TEMP    : error |= I2c_WriteByte (TRIG_T_MEASUREMENT_POLL);  break;
+    132               default:break;
+    133            }
+    134            
+    135            do{
+    136               I2c_StartCondition();
+    137               Delay_10us(10);            //  Original = 1000;  delay 10ms
+    138               if(i++ >= 20) break;
+    139            }while(I2c_WriteByte(I2C_ADR_R) == ACK_ERROR);
+    140          
+    141            if (i>=20){
+    142               error |= TIME_OUT_ERROR;
+    143            }
+    144            
+    145          
+    146            //-- read two data bytes and one checksum byte --
+    147            pMeasurand->s16.u8H = ddata[0] = I2c_ReadByte(ACK);
+    148            pMeasurand->s16.u8L = ddata[1] = I2c_ReadByte(ACK);
+    149            
+    150            checksum=I2c_ReadByte(NO_ACK);
+    151          
+    152            //-- verify checksum --
+    153            error |= SHT2x_CheckCrc (ddata,2,checksum);
+    154            I2c_StopCondition();
+    155          
+    156            return error;
+    157          }
+    158          
+    159          //===========================================================================
+    160          u8t SHT2x_SoftReset()
+    161          //===========================================================================
+    162          {
+    163            u8t  error=0;           //error variable
+    164          
+    165            I2c_StartCondition();
+    166            error |= I2c_WriteByte (I2C_ADR_W); // I2C Adr
+    167            error |= I2c_WriteByte (SOFT_RESET);                            // Command
+    168            I2c_StopCondition();
+    169          
+    170            Delay_10us(1500); // wait till sensor has restarted
+    171          
+    172            return error;
+    173          }
+    174          
+    175          //==============================================================================
+    176          float SHT2x_CalcRH(u16t u16sRH)
+    177          //==============================================================================
+    178          {
+    179            float humidityRH;              // variable for result
+    180          
+    181            u16sRH &= ~0x0003;          // clear bits [1..0] (status bits)
+    182            //-- calculate relative humidity [%RH] --
+    183          
+    184            humidityRH = -6.0 + 125.0/65536 * (float)u16sRH; // RH= -6 + 125 * SRH/2^16  
+    185          
+    186            return humidityRH;
+    187          }
+    188          
+    189          //==============================================================================
+    190          float SHT2x_CalcTemperatureC(u16t u16sT)
+    191          //==============================================================================
+    192          {
+    193            float temperatureC;            // variable for result
+    194          
+    195            u16sT &= ~0x0003;           // clear bits [1..0] (status bits)
+    196          
+    197            //-- calculate temperature [캜] --
+    198            temperatureC= -46.85 + 175.72/65536 *(float)u16sT; //T= -46.85 + 175.72 * ST/2^16
+    199            
+    200            temperatureC += 40;     // For minus Celcious
+    201            
+    202            return temperatureC;
+    203          }
+    204          
+    205          //==============================================================================
+    206          u8t SHT2x_GetSerialNumber(u8t u8SerialNumber[])
+    207          {
+    208            u8t  error=0;                          //error variable
+    209          
+    210            //Read from memory location 1
+    211            I2c_StartCondition();
+    212            error |= I2c_WriteByte (I2C_ADR_W);    //I2C address
+    213            error |= I2c_WriteByte (0xFA);         //Command for readout on-chip memory
+    214            error |= I2c_WriteByte (0x0F);         //on-chip memory address
+    215            I2c_StartCondition();
+    216            error |= I2c_WriteByte (I2C_ADR_R);    //I2C address
+    217            u8SerialNumber[5] = I2c_ReadByte(ACK); //Read SNB_3
+    218            I2c_ReadByte(ACK);                     //Read CRC SNB_3 (CRC is not analyzed)
+    219            u8SerialNumber[4] = I2c_ReadByte(ACK); //Read SNB_2
+    220            I2c_ReadByte(ACK);                     //Read CRC SNB_2 (CRC is not analyzed)
+    221            u8SerialNumber[3] = I2c_ReadByte(ACK); //Read SNB_1
+    222            I2c_ReadByte(ACK);                     //Read CRC SNB_1 (CRC is not analyzed)
+    223            u8SerialNumber[2] = I2c_ReadByte(ACK); //Read SNB_0
+    224            I2c_ReadByte(NO_ACK);                  //Read CRC SNB_0 (CRC is not analyzed)
+    225            I2c_StopCondition();
+    226          
+    227            //Read from memory location 2
+    228            I2c_StartCondition();
+    229            error |= I2c_WriteByte (I2C_ADR_W);    //I2C address
+    230            error |= I2c_WriteByte (0xFC);         //Command for readout on-chip memory
+    231            error |= I2c_WriteByte (0xC9);         //on-chip memory address
+    232            I2c_StartCondition();
+    233            error |= I2c_WriteByte (I2C_ADR_R);    //I2C address
+    234            u8SerialNumber[1] = I2c_ReadByte(ACK); //Read SNC_1
+    235            u8SerialNumber[0] = I2c_ReadByte(ACK); //Read SNC_0
+    236            I2c_ReadByte(ACK);                     //Read CRC SNC0/1 (CRC is not analyzed)
+    237            u8SerialNumber[7] = I2c_ReadByte(ACK); //Read SNA_1
+    238            u8SerialNumber[6] = I2c_ReadByte(ACK); //Read SNA_0
+    239            I2c_ReadByte(NO_ACK);                  //Read CRC SNA0/1 (CRC is not analyzed)
+    240            I2c_StopCondition();
+    241          
+    242            return error;
+    243          }
+
+   Maximum stack usage in bytes:
+
+   .cstack Function
+   ------- --------
+        4  SHT2x_CalcRH
+              0 -> __aeabi_d2f
+              4 -> __aeabi_dadd
+              4 -> __aeabi_dmul
+              4 -> __aeabi_f2d
+              4 -> __aeabi_ui2f
+        4  SHT2x_CalcTemperatureC
+              4 -> __aeabi_d2f
+              4 -> __aeabi_dadd
+              4 -> __aeabi_dmul
+              4 -> __aeabi_f2d
+              0 -> __aeabi_fadd
+              4 -> __aeabi_ui2f
+       16  SHT2x_CheckCrc
+       40  SHT2x_GetSerialNumber
+             40 -> I2c_ReadByte
+             40 -> I2c_StartCondition
+             40 -> I2c_StopCondition
+             40 -> I2c_WriteByte
+       24  SHT2x_MeasureHM
+             24 -> Delay_10us
+             24 -> I2c_ReadByte
+             24 -> I2c_StartCondition
+             24 -> I2c_StopCondition
+             24 -> I2c_WriteByte
+             24 -> SCL_out_mode
+             24 -> SCL_read
+             24 -> SHT2x_CheckCrc
+       24  SHT2x_MeasurePoll
+             24 -> Delay_10us
+             24 -> I2c_ReadByte
+             24 -> I2c_StartCondition
+             24 -> I2c_StopCondition
+             24 -> I2c_WriteByte
+             24 -> SHT2x_CheckCrc
+       24  SHT2x_ReadUserRegister
+             24 -> I2c_ReadByte
+             24 -> I2c_StartCondition
+             24 -> I2c_StopCondition
+             24 -> I2c_WriteByte
+             24 -> SHT2x_CheckCrc
+       16  SHT2x_SoftReset
+             16 -> Delay_10us
+             16 -> I2c_StartCondition
+             16 -> I2c_StopCondition
+             16 -> I2c_WriteByte
+       16  SHT2x_WriteUserRegister
+             16 -> I2c_StartCondition
+             16 -> I2c_StopCondition
+             16 -> I2c_WriteByte
+
+
+   Section sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       4  ??DataTable1
+       4  ??DataTable1_1
+       4  ??DataTable1_2
+       4  ??DataTable1_3
+       4  ??DataTable1_4
+       4  ??DataTable1_5
+       4  ??DataTable1_6
+       8  ?Subroutine0
+       6  ?Subroutine1
+       6  ?Subroutine2
+       8  ?Subroutine3
+       8  ?Subroutine4
+      10  ?Subroutine5
+      34  SHT2x_CalcRH
+      40  SHT2x_CalcTemperatureC
+      54  SHT2x_CheckCrc
+     188  SHT2x_GetSerialNumber
+     122  SHT2x_MeasureHM
+     116  SHT2x_MeasurePoll
+      64  SHT2x_ReadUserRegister
+      38  SHT2x_SoftReset
+      42  SHT2x_WriteUserRegister
+
+ 
+ 772 bytes in section .text
+ 
+ 772 bytes of CODE memory
+
+Errors: none
+Warnings: none
